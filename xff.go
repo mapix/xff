@@ -46,13 +46,17 @@ func Parse(ipList string) string {
 // and returns the resolved remote address.
 func GetRemoteAddr(r *http.Request) string {
 	xff := r.Header.Get("X-Forwarded-For")
-	var ip string
+	var ip, port string
 	if xff != "" {
 		ip = Parse(xff)
 	}
-	_, oport, err := net.SplitHostPort(r.RemoteAddr)
-	if err == nil && ip != "" {
-		return net.JoinHostPort(ip, oport)
+	if _, oport, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		port = oport
+	} else {
+		port = "unknown"
+	}
+	if ip != "" {
+		return net.JoinHostPort(ip, port)
 	}
 	return r.RemoteAddr
 }
